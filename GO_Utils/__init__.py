@@ -9,7 +9,6 @@ import idautils
 class GoSettings(object):
 
 
-
     def __init__(self):
         self.storage = {}
         #TODO: maybe here() not best option

@@ -8,6 +8,7 @@ idaapi.require("GO_Utils.Gopclntab")
 idaapi.require("GO_Utils.Utils")
 idaapi.require("GO_Utils.Firstmoduledata")
 idaapi.require("GO_Utils.Types")
+idaapi.require("GO_Utils.GoStrings")
 
 from idaapi import Form
 
@@ -77,6 +78,8 @@ Go version:
 def ida_main():
     # Create form
     global f
+    #GO_Utils.GoStrings.stringify()
+    idaapi.add_hotkey("Shift-S", GO_Utils.GoStrings.stringify)
     f = MyForm()
 
     # Compile (in order to populate the controls)
