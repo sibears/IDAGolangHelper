@@ -306,7 +306,6 @@ class TypeProcessing(object):
         struc_id = idc.GetStrucIdByName("type")
         offset_kind = idc.GetMemberOffset(struc_id, "kind")
         kind = idc.Byte(addr + offset_kind) & 0x1f
-        print "kind2 %d" % kind
         return self.settings.typer.standardEnums[0][1][kind]
 
 
@@ -390,8 +389,6 @@ class TypeProcessing(object):
         for i in xrange(size):
             self.processStructField(addr, i*sz)
         name = self.getName(offset)
-        if True:
-            print "Name is %s" % name
         name = Utils.relaxName(name)
         name = "ut_" + name
         self.createUserTypeStruct(addr, name, size, size_new_struct)
@@ -413,7 +410,6 @@ class TypeProcessing(object):
         
     def createUserTypeStruct(self, addr, name, size, self_size):
         fields = []
-        #print name
         sid = idc.GetStrucIdByName("structField")
         sz = idc.GetStrucSize(sid)
         sid_type = idc.GetStrucIdByName("type")
@@ -422,17 +418,13 @@ class TypeProcessing(object):
         idc.MakeComm(addr, name)
         for i in xrange(size):
             fieldname = self.nameFromOffset(self.getPtr(sid, addr+i*sz,"Name"))
-            #print fieldname
             type_addr = self.getPtr(sid, addr+i*sz, "typ")
             typename = self.getType(type_addr)
             size = self.getPtr(sid_type, type_addr, "size")
-            #print typename
             if fieldname == "" or fieldname is None:
                 fieldname = "unused_"+Utils.id_generator()
             offset = self.getStructFieldOffset(sid, addr+i*sz)
             if offset != curr_offset:
-                #print name
-                #print fieldname
                 print "Offset missmatch.Got %d expected %d. Adding padding..." % (curr_offset, offset)
                 if offset < curr_offset:
                     raise("Too many bytes already")
@@ -467,9 +459,7 @@ class TypeProcessing(object):
                 fields.append(("padding", "char"))
                 curr_offset += 1    
         new_type = [(name, fields)]
-        #print new_type
         self.settings.structCreator.createTypes(new_type)
-        #print fields
         new_type_sid = idc.GetStrucIdByName(name)
         sz = idc.GetStrucSize(new_type_sid)
         if sz != self_size:
@@ -535,7 +525,6 @@ class TypeProcessing17(TypeProcessing):
         self.robase = base_type
 
     def next(self):
-        #print "next type from typelink"
         if self.pos >= self.end:
             raise StopIteration
         value = idc.Dword(self.pos)
@@ -554,7 +543,6 @@ class TypeProcessing17(TypeProcessing):
         return out
 
     def getName(self, offset):
-        #print "GetName: %x" % offset
         sid = idc.GetStrucIdByName("type")
         name_off = self.getDword(sid, offset, "string")
         string_addr = self.getOffset(name_off) + 3
@@ -621,7 +609,6 @@ class TypeProcessing17(TypeProcessing):
 
     def parseFuncType(self, offset):
         return
-        # print "func off %x" % offset
         sid = idc.GetStrucIdByName("funcType")
         in_size = idc.Word(offset + idc.GetMemberOffset(sid, "incount"))
         out_size = idc.Word(offset + idc.GetMemberOffset(sid, "outcount"))
