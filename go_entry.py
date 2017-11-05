@@ -78,7 +78,6 @@ Go version:
 def ida_main():
     # Create form
     global f
-    #GO_Utils.GoStrings.stringify()
     idaapi.add_hotkey("Shift-S", GO_Utils.GoStrings.stringify)
     f = MyForm()
 
