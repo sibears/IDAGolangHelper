@@ -11,8 +11,7 @@ class GoSettings(object):
 
     def __init__(self):
         self.storage = {}
-        #TODO: maybe here() not best option
-        self.bt_obj = Utils.get_bitness(idc.here())
+        self.bt_obj = Utils.get_bitness(idc.BeginEA())
         self.structCreator = Utils.StructCreator(self.bt_obj)
         self.processor = None
         self.typer = None
