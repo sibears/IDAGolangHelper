@@ -54,6 +54,8 @@ class GoSettings(object):
 
     def getVersionByString(self):
         pos = idautils.Functions().next()
+        if idc.FindBinary(pos, idc.SEARCH_DOWN, "67 6f 31 2e 31 30") != idc.BADADDR:
+            return 'Go 1.10'
         if idc.FindBinary(pos, idc.SEARCH_DOWN, "67 6f 31 2e 39") != idc.BADADDR:
             return 'Go 1.9'
         if idc.FindBinary(pos, idc.SEARCH_DOWN, "67 6f 31 2e 38") != idc.BADADDR:
