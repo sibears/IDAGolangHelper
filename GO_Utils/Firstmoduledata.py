@@ -3,8 +3,6 @@ import idautils
 import struct
 
 def findFirstModuleData(addr, bt):
-    #addr_st = "".join(["%s "% x.encode('hex') for x in ("%x" % addr).decode('hex')[::-1]])
-    print '%x' % addr
     possible_addr = idautils.XrefsTo(addr).next().frm
     if Utils.is_hardcoded_slice(possible_addr, bt):
         return possible_addr
