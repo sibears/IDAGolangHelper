@@ -4,7 +4,7 @@ import struct
 
 def findFirstModuleData(addr, bt):
     #addr_st = "".join(["%s "% x.encode('hex') for x in ("%x" % addr).decode('hex')[::-1]])
-    #print addr_st
+    print '%x' % addr
     possible_addr = idautils.XrefsTo(addr).next().frm
     if Utils.is_hardcoded_slice(possible_addr, bt):
         return possible_addr
@@ -12,7 +12,14 @@ def findFirstModuleData(addr, bt):
 
 def isGo17(addr, bt):
     addr += bt.size * 27
-    return Utils.is_hardcoded_slice(addr, bt)
+    addr2 = addr + bt.size * 6 # for go1.7 this addr will be for modulename 
+    return Utils.is_hardcoded_slice(addr, bt) and (not Utils.is_hardcoded_slice(addr2, bt))
+
+
+def isGo18_10(addr, bt):
+    addr += bt.size * 27
+    addr2 = addr + bt.size * 6 # for go1.8 this addr will be for itablinks 
+    return Utils.is_hardcoded_slice(addr, bt) and (Utils.is_hardcoded_slice(addr2, bt))
 
 def getTypeinfo17(addr, bt):
     addr2 = addr + bt.size * 25
@@ -40,6 +47,7 @@ def getTypeinfo(addr, bt):
     return beg, beg+size*bt.size
 
 """
+1.10 - same as 1.10
 1.9 - same as 1.8
 1.8
 type moduledata struct {

@@ -43,7 +43,9 @@ class GoSettings(object):
             return "This should be go <= 1.4 : No module data found"
         vers = "go1.5 or go1.6"
         if Firstmoduledata.isGo17(fmd, self.bt_obj) is True:
-            vers = "go1.7, go1.8 or go1.9"
+            vers = "go1.7"
+        elif Firstmoduledata.isGo18_10(fmd, self.bt_obj) is True:
+            vers = "go1.8 or go1.9 or go1.10"
         return "According to moduleData struct is should be %s" % (vers)
 
     def renameFunctions(self):
