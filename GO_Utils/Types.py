@@ -6,7 +6,7 @@ class GoTypes_BASE(object):
         self.standardTypes = [
                               ("string",[("ptr","*char"), ("len", "uintptr")]),
                               ("slice", [("data","*char"),("len", "uintptr"), ("cap", "uintptr")]),
-                              ("iface", [("itab","*char"),("ptr","*char")])
+                              ("__iface", [("itab","*char"),("ptr","*char")])
         ]
 
         self.commonTypes = [
@@ -435,6 +435,7 @@ class TypeProcessing(object):
             if size != 0:
                 offset_kind = idc.GetMemberOffset(sid_type, "kind")
                 kind_of_type = self.getKindEnumName(type_addr)
+                print kind_of_type
                 if kind_of_type == "STRUCT_": #Disabled for now
                     name_type = self.getName(type_addr)
                     while name_type[0] == "*":
@@ -448,7 +449,7 @@ class TypeProcessing(object):
                 elif kind_of_type == "SLICE":
                     fields.append((fieldname, "slice"))
                 elif kind_of_type == "INTERFACE":
-                    fields.append((fieldname, "iface"))
+                    fields.append((fieldname, "__iface"))
                 else:
                     fields.append((fieldname, "char [%d]" % size))
         if curr_offset != self_size:
