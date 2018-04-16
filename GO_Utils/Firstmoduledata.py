@@ -3,10 +3,11 @@ import idautils
 import struct
 
 def findFirstModuleData(addr, bt):
-    possible_addr = idautils.XrefsTo(addr).next().frm
-    if Utils.is_hardcoded_slice(possible_addr, bt):
-        return possible_addr
-    return None
+	possible_addr = [x for x in idautils.XrefsTo(addr)]
+	for p_a in possible_addr:
+		if Utils.is_hardcoded_slice(p_a.frm, bt):
+			return p_a.frm
+	return None
 
 def isGo17(addr, bt):
     addr += bt.size * 27

@@ -1,6 +1,15 @@
 import idc
 import idautils
+import idaapi
 import Utils
+
+info = idaapi.get_inf_structure()
+try:
+    is_be = info.is_be()
+except:
+    is_be = info.mf
+
+lookup = "FF FF FF FB 00 00" if is_be else "FB FF FF FF 00 00"
 
 def check_is_gopclntab(addr):
     ptr = Utils.get_bitness(addr)
@@ -16,7 +25,7 @@ def check_is_gopclntab(addr):
 def findGoPcLn():
     pos = idautils.Functions().next() # Get some valid address in .text segment
     while True:
-        possible_loc = idc.FindBinary(pos, idc.SEARCH_DOWN, "FB FF FF FF 00 00") #header of gopclntab
+        possible_loc = idc.FindBinary(pos, idc.SEARCH_DOWN, lookup) #header of gopclntab
         if possible_loc == idc.BADADDR:
             break
         if check_is_gopclntab(possible_loc):
