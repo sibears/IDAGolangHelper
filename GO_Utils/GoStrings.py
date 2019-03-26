@@ -1,6 +1,7 @@
 import idc
 import idaapi
 import idautils
+import ida_bytes
 
 #Simple function to fix strings in current function
 #Mostly based on "Tim 'diff' Strazzere" ideas
@@ -42,7 +43,7 @@ def is_this_a_real_string(next_pos, instr, size_data):
 def make_string(addr, siz):
     print "Creating string at %x %d size" % (addr, siz)
     idc.MakeUnknown(addr, siz, idc.DOUNK_SIMPLE)
-    idc.MakeStr(addr, addr+siz)
+    ida_bytes.create_strlit(addr, siz, -1)
 
 def get_bitness_bytes(addr):
     if idc.GetSegmentAttr(addr, idc.SEGATTR_BITNESS) == 2:
