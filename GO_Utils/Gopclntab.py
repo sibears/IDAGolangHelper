@@ -1,6 +1,9 @@
 import idc
 import idautils
 import idaapi
+import ida_bytes
+import ida_funcs
+import ida_search
 import Utils
 
 info = idaapi.get_inf_structure()
@@ -25,7 +28,8 @@ def check_is_gopclntab(addr):
 def findGoPcLn():
     pos = idautils.Functions().next() # Get some valid address in .text segment
     while True:
-        possible_loc = idc.FindBinary(pos, idc.SEARCH_DOWN, lookup) #header of gopclntab
+        end_ea = idc.get_segm_end(pos)
+        possible_loc = ida_search.find_binary(pos, end_ea, lookup, 16, idc.SEARCH_DOWN) #header of gopclntab
         if possible_loc == idc.BADADDR:
             break
         if check_is_gopclntab(possible_loc):
@@ -49,9 +53,9 @@ def rename(beg, ptr, make_funcs = True):
         ptr.maker(base+offset)
         func_addr = ptr.ptr(base+offset)
         if make_funcs == True:
-            idc.MakeUnknown(func_addr, 1, idc.DOUNK_SIMPLE)
-            idc.MakeFunction(func_addr)
-        name_offset = idc.Dword(base+offset+ptr.size)
-        name = idc.GetString(base + name_offset)
+            ida_bytes.del_items(func_addr, 1, ida_bytes.DELIT_SIMPLE)
+            ida_funcs.add_func(func_addr)
+        name_offset = idc.get_wide_dword(base+offset+ptr.size)
+        name = idc.get_strlit_contents(base + name_offset)
         name = Utils.relaxName(name)
         Utils.rename(func_addr, name)
