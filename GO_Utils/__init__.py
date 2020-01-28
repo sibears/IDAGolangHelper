@@ -55,26 +55,32 @@ class GoSettings(object):
         Gopclntab.rename(gopcln_tab, self.bt_obj)
 
     def getVersionByString(self):
-        pos = idautils.Functions().next()
-        end_ea = idc.get_segm_end(pos)
+        # pos = idautils.Functions().next()
+        end_ea = idc.get_segm_end(0)
         
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 31 30", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 33", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+            return 'Go 1.13'
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 32", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+            return 'Go 1.12'
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 31", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+            return 'Go 1.11'
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 30", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.10'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 39", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 39", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.9'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 38", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 38", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.8'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 37", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 37", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.7'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 36", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 36", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.6'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 35", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 35", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.5'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 34", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 34", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.4'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 33", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 33", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.3'
-        if ida_search.find_binary(pos, end_ea, "67 6f 31 2e 32", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 32", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.2'
 
     def createTyper(self, typ):
