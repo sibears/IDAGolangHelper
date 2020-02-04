@@ -27,13 +27,14 @@ def check_is_gopclntab(addr):
 
 
 def findGoPcLn():
-    end_ea = idc.get_segm_end(0)
-    possible_loc = ida_search.find_binary(0, end_ea, lookup, 16, idc.SEARCH_DOWN) #header of gopclntab
-
-    if check_is_gopclntab(possible_loc):
-        return possible_loc
-    else:
-        return None
+    possible_loc = ida_search.find_binary(0, idc.BADADDR, lookup, 16, idc.SEARCH_DOWN) #header of gopclntab
+    while possible_loc != idc.BADADDR:
+        if check_is_gopclntab(possible_loc):
+            return possible_loc
+        else:
+            #keep searching till we reach end of binary
+            possible_loc = ida_search.find_binary(possible_loc+1, idc.BADADDR, lookup, 16, idc.SEARCH_DOWN)
+    return None
 
 
 def rename(beg, ptr, make_funcs = True):
