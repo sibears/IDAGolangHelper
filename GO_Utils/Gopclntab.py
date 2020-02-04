@@ -4,6 +4,7 @@ import idaapi
 import ida_bytes
 import ida_funcs
 import ida_search
+import ida_segment
 import Utils
 
 info = idaapi.get_inf_structure()
@@ -26,15 +27,13 @@ def check_is_gopclntab(addr):
 
 
 def findGoPcLn():
-    pos = idautils.Functions().next() # Get some valid address in .text segment
-    while True:
-        end_ea = idc.get_segm_end(pos)
-        possible_loc = ida_search.find_binary(pos, end_ea, lookup, 16, idc.SEARCH_DOWN) #header of gopclntab
-        if possible_loc == idc.BADADDR:
-            break
+    possible_loc = ida_search.find_binary(0, idc.BADADDR, lookup, 16, idc.SEARCH_DOWN) #header of gopclntab
+    while possible_loc != idc.BADADDR:
         if check_is_gopclntab(possible_loc):
             return possible_loc
-        pos = possible_loc+1
+        else:
+            #keep searching till we reach end of binary
+            possible_loc = ida_search.find_binary(possible_loc+1, idc.BADADDR, lookup, 16, idc.SEARCH_DOWN)
     return None
 
 
