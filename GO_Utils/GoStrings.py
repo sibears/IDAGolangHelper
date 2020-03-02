@@ -41,7 +41,7 @@ def is_this_a_real_string(next_pos, instr, size_data):
     return False, 0
 
 def make_string(addr, siz):
-    print "Creating string at %x %d size" % (addr, siz)
+    print("Creating string at %x %d size" % (addr, siz))
     idc.MakeUnknown(addr, siz, idc.DOUNK_SIMPLE)
     ida_bytes.create_strlit(addr, siz, -1)
 
@@ -60,7 +60,7 @@ def stringify():
     while position < f.endEA:
         instr = idautils.DecodeInstruction(position)
         if instr is None:
-            print "%x: Not and instruction found" % position
+            print("%x: Not and instruction found" % position)
             break
         mnem = instr.get_canon_mnem()
         if mnem == "mov":

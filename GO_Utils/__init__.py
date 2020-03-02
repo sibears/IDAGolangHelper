@@ -1,8 +1,8 @@
 import idaapi
-import Gopclntab
-import Utils
-import Firstmoduledata
-import Types
+from . import Gopclntab
+from . import Utils
+from . import Firstmoduledata
+from . import Types
 import idc
 import idautils
 import ida_ida
@@ -125,7 +125,7 @@ class GoSettings(object):
         else:
             beg, end = Firstmoduledata.getTypeinfo(fmd, self.bt_obj)
             self.processor = Types.TypeProcessing(beg, end, self.bt_obj, self)
-        print "%x %x %x" % (beg, end, robase)
-        for i in self.processor:
-            pass
+        print("%x %x %x" % (beg, end, robase))
+#        for i in self.processor:
+#            pass
         return

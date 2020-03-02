@@ -1,4 +1,4 @@
-import Utils
+from . import Utils
 import ida_bytes
 import ida_struct
 import idc
@@ -315,7 +315,7 @@ class TypeProcessing(object):
         #Check if we already parse this
         if offset in self.type_addr:
             return
-        print "Processing: %x" % offset
+        print("Processing: %x" % offset)
         self.type_addr.append(offset)
 
         #Set type and get name
@@ -325,7 +325,7 @@ class TypeProcessing(object):
 
         #get kind name
         kind_name = self.getKindEnumName(offset)
-        print kind_name
+        print(kind_name)
         if name[0] == "*" and kind_name != "PTR":
             name = name[1:]
         name = Utils.relaxName(name)
@@ -427,7 +427,7 @@ class TypeProcessing(object):
                 fieldname = "unused_"+Utils.id_generator()
             offset = self.getStructFieldOffset(sid, addr+i*sz)
             if offset != curr_offset:
-                print "Offset missmatch.Got %d expected %d. Adding padding..." % (curr_offset, offset)
+                print("Offset missmatch.Got %d expected %d. Adding padding..." % (curr_offset, offset))
                 if offset < curr_offset:
                     raise("Too many bytes already")
                 while offset != curr_offset:
@@ -437,14 +437,14 @@ class TypeProcessing(object):
             if size != 0:
                 offset_kind = idc.get_member_offset(sid_type, "kind")
                 kind_of_type = self.getKindEnumName(type_addr)
-                print kind_of_type
+                print(kind_of_type)
                 if kind_of_type == "STRUCT_": #Disabled for now
                     name_type = self.getName(type_addr)
                     while name_type[0] == "*":
                         name_type = name_type[1:]
                     name_type = Utils.relaxName(name_type)
                     name_type = "ut_" + name_type
-                    #print "setting type %s" % name_type
+                    #print("setting type %s" % name_type)
                     fields.append((fieldname, name_type))
                 elif kind_of_type == "STRING":
                     fields.append((fieldname, "string"))
@@ -455,7 +455,7 @@ class TypeProcessing(object):
                 else:
                     fields.append((fieldname, "char [%d]" % size))
         if curr_offset != self_size:
-            print "%x: Structure size mismatch: %x" % (addr, curr_offset)
+            print("%x: Structure size mismatch: %x" % (addr, curr_offset))
             if self_size < curr_offset:
                     raise("Too many bytes already")
             while self_size != curr_offset:
@@ -466,11 +466,11 @@ class TypeProcessing(object):
         new_type_sid = ida_struct.get_struc_id(name)
         sz = ida_struct.get_struc_size(new_type_sid)
         if sz != self_size:
-            print "%x" % addr   
+            print("%x" % addr   )
             raise("Error at creating structure")
     
     def getType(self, addr):
-        print "%x" % addr
+        print("%x" % addr)
         sid = ida_struct.get_struc_id("type")
         name = self.getName(addr)
         if self.getKindEnumName(addr) != "PTR":
