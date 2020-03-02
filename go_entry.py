@@ -50,14 +50,14 @@ Go version:
 
     def OnButton1(self, code=0):
         GO_SETTINGS.findModuleData()
-        print GO_SETTINGS.tryFindGoVersion()
+        print(GO_SETTINGS.tryFindGoVersion())
 
 
     def OnButton3(self, code=0):
         GO_SETTINGS.renameFunctions()
 
     def OnButton2(self, code=0):
-        print GO_SETTINGS.getVersionByString()
+        print(GO_SETTINGS.getVersionByString())
 
     def OnButton4(self, code=0):
         typ =  self.GetControlValue(self.cGoVers)

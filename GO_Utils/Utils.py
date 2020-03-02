@@ -27,9 +27,9 @@ def rename(offset, name):
 
 
 def relaxName(name):
-    name = name.replace('.', '_').replace("<-", '_chan_left_').replace('*', '_ptr_').replace('-', '_').replace(';','').replace('"', '').replace('\\', '')
-    name = name.replace('(', '').replace(')', '').replace('/', '_').replace(' ', '_').replace(',', 'comma').replace('{','').replace('}', '').replace('[', '').replace(']', '')
-    return name
+    name = name.replace(b'.', b'_').replace(b"<-", b'_chan_left_').replace(b'*', b'_ptr_').replace(b'-', b'_').replace(b';', b'').replace(b'"', b'').replace(b'\\', b'')
+    name = name.replace(b'(', b'').replace(b')', b'').replace(b'/', b'_').replace(b' ', b'_').replace(b',', b'comma').replace(b'{', b'').replace(b'}', b'').replace(b'[', b'').replace(b']', b'')
+    return name.decode(encoding = "ISO-8859-1")
 
 
 def get_bitness(addr):
@@ -86,16 +86,16 @@ class StructCreator(object):
             res = idc.add_struc_member(sid, i[0], -1, i1, i2, i3)
             use_name = i[0]
             if res == -1: #Bad name
-                #print "Bad name %s for struct member" % i[0]
+                #print("Bad name %s for struct member" % i[0])
                 use_name = i[0] + "_autogen_"+id_generator()
                 idc.add_struc_member(sid, use_name, -1, i1, i2, i3)
             if new_type is not None:
                 offset = idc.get_member_offset(sid, use_name)
-                #print "Setting %s as %s" % (i[0], new_type)
+                #print("Setting %s as %s" % (i[0], new_type))
                 idc.SetType(idc.get_member_id(sid, offset), new_type)
 
     def makeStruct(self, i):
-        print "Creating structure %s" % (i[0])
+        print("Creating structure %s" % (i[0]))
         sid = self.createStruct(i[0])
         self.fillStruct(sid, i[1])
 
