@@ -13,7 +13,7 @@ class GoSettings(object):
 
     def __init__(self):
         self.storage = {}
-        self.bt_obj = Utils.get_bitness(ida_ida.inf_get_min_ea())
+        self.bt_obj = Utils.get_bitness(idc.BeginEA())
         self.structCreator = Utils.StructCreator(self.bt_obj)
         self.processor = None
         self.typer = None
