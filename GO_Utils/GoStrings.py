@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import idc
 import idaapi
 import idautils
@@ -41,12 +43,12 @@ def is_this_a_real_string(next_pos, instr, size_data):
     return False, 0
 
 def make_string(addr, siz):
-    print "Creating string at %x %d size" % (addr, siz)
-    idc.MakeUnknown(addr, siz, idc.DOUNK_SIMPLE)
+    print("Creating string at %x %d size" % (addr, siz))
+    ida_bytes.del_items(addr, siz, ida_bytes.DELIT_SIMPLE)
     ida_bytes.create_strlit(addr, siz, -1)
 
 def get_bitness_bytes(addr):
-    if idc.GetSegmentAttr(addr, idc.SEGATTR_BITNESS) == 2:
+    if idc.get_segm_attr(addr, idc.SEGATTR_BITNESS) == 2:
         return 8
     return 4
 
@@ -54,13 +56,13 @@ def stringify():
     ea = idc.here()
     size_data = get_bitness_bytes(ea)
     f = idaapi.get_func(ea)
-    frsize = idc.GetFrameLvarSize(ea)
-    position = f.startEA
+    frsize = idc.get_func_attr(ea, idc.FUNCATTR_FRSIZE)
+    position = f.start_ea
     size = 0
-    while position < f.endEA:
+    while position < f.end_ea:
         instr = idautils.DecodeInstruction(position)
         if instr is None:
-            print "%x: Not and instruction found" % position
+            print("%x: Not and instruction found" % position)
             break
         mnem = instr.get_canon_mnem()
         if mnem == "mov":
