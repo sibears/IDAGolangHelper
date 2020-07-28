@@ -3,6 +3,7 @@
 # (c) Hex-Rays
 #
 import GO_Utils
+import idaapi
 idaapi.require("GO_Utils")
 idaapi.require("GO_Utils.Gopclntab")
 idaapi.require("GO_Utils.Utils")
