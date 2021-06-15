@@ -1,8 +1,8 @@
 import idaapi
-import Gopclntab
-import Utils
-import Firstmoduledata
-import Types
+from . import Gopclntab
+from . import Utils
+from . import Firstmoduledata
+from . import Types
 import idc
 import idautils
 import ida_ida
@@ -17,6 +17,7 @@ class GoSettings(object):
         self.structCreator = Utils.StructCreator(self.bt_obj)
         self.processor = None
         self.typer = None
+        self.is116 = False
 
     def getVal(self, key):
         if key in self.storage:
@@ -30,13 +31,15 @@ class GoSettings(object):
         gopcln_addr = self.getVal("gopcln")
         if gopcln_addr is None:
             gopcln_addr = Gopclntab.findGoPcLn()
+            print("Saving gopclntab entry")
             self.setVal("gopcln", gopcln_addr)
         return gopcln_addr
 
     def findModuleData(self):
         gopcln_addr = self.getGopcln()
-        fmd = Firstmoduledata.findFirstModuleData(gopcln_addr, self.bt_obj)
-        self.setVal("firstModData", fmd)
+        if gopcln_addr is not None:
+            fmd = Firstmoduledata.findFirstModuleData(gopcln_addr, self.bt_obj)
+            self.setVal("firstModData", fmd)
         return
 
     def tryFindGoVersion(self):
@@ -48,16 +51,23 @@ class GoSettings(object):
             vers = "go1.7"
         elif Firstmoduledata.isGo18_10(fmd, self.bt_obj) is True:
             vers = "go1.8 or go1.9 or go1.10"
+        elif Firstmoduledata.isGo116(fmd, self.bt_obj) is True:
+            vers = "go1.16"
+            self.is116 = True
         return "According to moduleData struct is should be %s" % (vers)
 
     def renameFunctions(self):
         gopcln_tab = self.getGopcln()
-        Gopclntab.rename(gopcln_tab, self.bt_obj)
+        if self.is116:
+            Gopclntab.rename16(gopcln_tab, self.bt_obj)
+        else:
+            Gopclntab.rename(gopcln_tab, self.bt_obj)
 
     def getVersionByString(self):
         # pos = idautils.Functions().next()
         end_ea = idc.get_segm_end(0)
-        
+        if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 36", 16, idc.SEARCH_DOWN) != idc.BADADDR:
+            return 'Go 1.16'
         if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 33", 16, idc.SEARCH_DOWN) != idc.BADADDR:
             return 'Go 1.13'
         if ida_search.find_binary(0, end_ea, "67 6f 31 2e 31 32", 16, idc.SEARCH_DOWN) != idc.BADADDR:
@@ -98,6 +108,8 @@ class GoSettings(object):
             self.typer = Types.Go17Types(self.structCreator)
         elif typ == 7: #1.10
             self.typer = Types.Go17Types(self.structCreator)
+        elif typ == 8: #1.10
+            self.typer = Types.Go116Types(self.structCreator)
 
     def typesModuleData(self, typ):
         if typ < 2:
@@ -122,10 +134,13 @@ class GoSettings(object):
         elif typ == 7:
             beg, end, robase = Firstmoduledata.getTypeinfo18(fmd, self.bt_obj)
             self.processor = Types.TypeProcessing19(beg, end, self.bt_obj, self, robase)
+        elif typ == 8:
+            beg, end, robase = Firstmoduledata.getTypeinfo116(fmd, self.bt_obj)
+            self.processor = Types.TypeProcessing116(beg, end, self.bt_obj, self, robase)
         else:
             beg, end = Firstmoduledata.getTypeinfo(fmd, self.bt_obj)
             self.processor = Types.TypeProcessing(beg, end, self.bt_obj, self)
-        print "%x %x %x" % (beg, end, robase)
+        print("%x %x %x" % (beg, end, robase))
         for i in self.processor:
             pass
         return

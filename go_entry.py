@@ -34,7 +34,8 @@ Go version:
 <Go1.7:{r7}>
 <Go1.8:{r8}>
 <Go1.9:{r9}>
-<Go1.10:{r10}>{cGoVers}>
+<Go1.10:{r10}>
+<Go1.16:{r16}>{cGoVers}>
 <##Add standard go types:{iButton4}>
 <##Parse types by moduledata:{iButton5}>
 """, {
@@ -43,21 +44,21 @@ Go version:
             'iButton3': Form.ButtonInput(self.OnButton3),
             'iButton4': Form.ButtonInput(self.OnButton4),
             'iButton5': Form.ButtonInput(self.OnButton5),
-            'cGoVers': Form.RadGroupControl(("r2", "r3","r4","r5","r6","r7", "r8", "r9", "r10")),
+            'cGoVers': Form.RadGroupControl(("r2", "r3","r4","r5","r6","r7", "r8", "r9", "r10", "r16")),
             'FormChangeCb': Form.FormChangeCb(self.OnFormChange),
         })
 
 
     def OnButton1(self, code=0):
         GO_SETTINGS.findModuleData()
-        print GO_SETTINGS.tryFindGoVersion()
+        print(GO_SETTINGS.tryFindGoVersion())
 
 
     def OnButton3(self, code=0):
         GO_SETTINGS.renameFunctions()
 
     def OnButton2(self, code=0):
-        print GO_SETTINGS.getVersionByString()
+        print(GO_SETTINGS.getVersionByString())
 
     def OnButton4(self, code=0):
         typ =  self.GetControlValue(self.cGoVers)

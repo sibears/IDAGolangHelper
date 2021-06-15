@@ -86,16 +86,16 @@ class StructCreator(object):
             res = idc.add_struc_member(sid, i[0], -1, i1, i2, i3)
             use_name = i[0]
             if res == -1: #Bad name
-                #print "Bad name %s for struct member" % i[0]
+                #print("Bad name %s for struct member" % i[0])
                 use_name = i[0] + "_autogen_"+id_generator()
                 idc.add_struc_member(sid, use_name, -1, i1, i2, i3)
             if new_type is not None:
                 offset = idc.get_member_offset(sid, use_name)
-                #print "Setting %s as %s" % (i[0], new_type)
+                #print("Setting %s as %s" % (i[0], new_type))
                 idc.SetType(idc.get_member_id(sid, offset), new_type)
 
     def makeStruct(self, i):
-        print "Creating structure %s" % (i[0])
+        print("Creating structure %s" % (i[0]))
         sid = self.createStruct(i[0])
         self.fillStruct(sid, i[1])
 
