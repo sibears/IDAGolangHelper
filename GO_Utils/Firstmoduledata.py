@@ -55,6 +55,9 @@ def getTypeinfo116(addr, bt):
     print(robase)
     return beg, beg+size*4, robase
 
+def getTypeinfo117(addr, bt):
+	return getTypeinfo116(addr, bt)
+
 def getTypeinfo(addr, bt):
     addr += bt.size * 25
     beg = bt.ptr(addr)

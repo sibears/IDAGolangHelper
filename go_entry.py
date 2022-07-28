@@ -35,7 +35,8 @@ Go version:
 <Go1.8:{r8}>
 <Go1.9:{r9}>
 <Go1.10:{r10}>
-<Go1.16:{r16}>{cGoVers}>
+<Go1.16:{r16}>
+<Go1.17:{r17}>{cGoVers}>
 <##Add standard go types:{iButton4}>
 <##Parse types by moduledata:{iButton5}>
 """, {
@@ -44,7 +45,7 @@ Go version:
             'iButton3': Form.ButtonInput(self.OnButton3),
             'iButton4': Form.ButtonInput(self.OnButton4),
             'iButton5': Form.ButtonInput(self.OnButton5),
-            'cGoVers': Form.RadGroupControl(("r2", "r3","r4","r5","r6","r7", "r8", "r9", "r10", "r16")),
+            'cGoVers': Form.RadGroupControl(("r2", "r3","r4","r5","r6","r7", "r8", "r9", "r10", "r16", "r17")),
             'FormChangeCb': Form.FormChangeCb(self.OnFormChange),
         })
 
