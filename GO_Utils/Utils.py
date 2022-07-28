@@ -28,7 +28,7 @@ def rename(offset, name):
 
 def relaxName(name):
     name = name.replace('.', '_').replace("<-", '_chan_left_').replace('*', '_ptr_').replace('-', '_').replace(';','').replace('"', '').replace('\\', '')
-    name = name.replace('(', '').replace(')', '').replace('/', '_').replace(' ', '_').replace(',', 'comma').replace('{','').replace('}', '').replace('[', '').replace(']', '')    
+    name = name.replace('(', '').replace(')', '').replace('/', '_').replace(' ', '_').replace(',', 'comma').replace('{','').replace('}', '').replace('[', '').replace(']', '')
     return name
 
 
@@ -69,21 +69,19 @@ class StructCreator(object):
         sid = ida_struct.get_struc_id(name)
         if sid != idc.BADADDR:
             idc.del_struc(sid)
-            
-        sid = idc.add_struc(-1, name, 0)        
+        sid = idc.add_struc(-1, name, 0)
         self.types_id['name'] = sid
-
         return sid
 
     def fillStruct(self, sid, data):
         for i in data:
             new_type = None
             #(i1, i2, i3) = self.stepper.parseField(i[1])
-            name = i[1]            
+            name = i[1]
             if name[0] == "*":
                 name = name[1:]
 
-            member_sid = ida_struct.get_struc_id(i[1])                
+            member_sid = ida_struct.get_struc_id(i[1])
             if i[1] == 'baseptr':
                 i1, i2, i3 = self.baseptr            
             elif i[1] == 'uintptr':
@@ -115,7 +113,7 @@ class StructCreator(object):
         sid = self.createStruct(i[0])
         self.fillStruct(sid, i[1])
 
-    def createTypes(self, types):        
+    def createTypes(self, types):
         for i in types:
             self.makeStruct(i)
 

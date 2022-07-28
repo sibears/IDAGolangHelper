@@ -122,7 +122,7 @@ class GoSettings(object):
         if fmd is None:
             return
         if self.typer is None:
-            self.createTyper(typ)        
+            self.createTyper(typ)
         robase = None
         if typ == 4:
             beg, end, robase = Firstmoduledata.getTypeinfo17(fmd, self.bt_obj)

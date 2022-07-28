@@ -523,8 +523,7 @@ class TypeProcessing(object):
         while name[0] == "*":
             name = name[1:]
         name = Utils.relaxName(name)
-        print('Continue parsing of {:x}'.format(offset))
-        name = "ut_" + name        
+        name = "ut_" + name
         self.createUserTypeStruct(addr, name, size, size_new_struct)
 
     def processStructField(self, addr, index):
