@@ -59,10 +59,15 @@ class StructCreator(object):
             self.uintptr = (idc.FF_QWORD|idc.FF_DATA, -1, bt_obj.size)
         else:
             self.uintptr = (idc.FF_DWORD | idc.FF_DATA, -1, bt_obj.size)
+        
+        self.baseptr = (idc.FF_DWORD | idc.FF_DATA, 0, 4)
+
+    def configBase(self, robase):
+        self.baseptr = (idc.FF_DWORD|idc.FF_0OFF, robase, 4)
 
     def createStruct(self, name):
         sid = ida_struct.get_struc_id(name)
-        if sid != -1:
+        if sid != idc.BADADDR:
             idc.del_struc(sid)
         sid = idc.add_struc(-1, name, 0)
         self.types_id['name'] = sid
@@ -75,10 +80,19 @@ class StructCreator(object):
             name = i[1]
             if name[0] == "*":
                 name = name[1:]
-            if i[1] != "uintptr":
-                i1,i2,i3 = (idc.FF_BYTE|idc.FF_DATA, -1, 1)
-            else:
+
+            member_sid = ida_struct.get_struc_id(i[1])
+            if i[1] == 'baseptr':
+                i1, i2, i3 = self.baseptr            
+            elif i[1] == 'uintptr':
                 i1, i2, i3 = self.uintptr
+            elif member_sid != idc.BADADDR:
+                i1, i2, i3 = (idc.FF_STRUCT, member_sid, ida_struct.get_struc_size(member_sid))
+            elif i[1].endswith(' *'): # It is a pointer to some class
+                i1, i2, i3 = self.uintptr
+            else:
+                i1,i2,i3 = (idc.FF_BYTE|idc.FF_DATA, -1, 1)  
+
             if name == i[1]:
                 new_type = i[1]
             else:

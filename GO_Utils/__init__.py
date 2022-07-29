@@ -108,8 +108,10 @@ class GoSettings(object):
             self.typer = Types.Go17Types(self.structCreator)
         elif typ == 7: #1.10
             self.typer = Types.Go17Types(self.structCreator)
-        elif typ == 8: #1.10
+        elif typ == 8: #1.16
             self.typer = Types.Go116Types(self.structCreator)
+        elif typ == 9: #1.17
+            self.typer = Types.Go117Types(self.structCreator)
 
     def typesModuleData(self, typ):
         if typ < 2:
@@ -137,6 +139,10 @@ class GoSettings(object):
         elif typ == 8:
             beg, end, robase = Firstmoduledata.getTypeinfo116(fmd, self.bt_obj)
             self.processor = Types.TypeProcessing116(beg, end, self.bt_obj, self, robase)
+        elif typ == 9:
+            beg, end, robase = Firstmoduledata.getTypeinfo117(fmd, self.bt_obj)
+            self.typer.update_robase(robase)
+            self.processor = Types.TypeProcessing117(beg, end, self.bt_obj, self, robase)            
         else:
             beg, end = Firstmoduledata.getTypeinfo(fmd, self.bt_obj)
             self.processor = Types.TypeProcessing(beg, end, self.bt_obj, self)

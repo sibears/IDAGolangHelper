@@ -139,9 +139,76 @@ class Go116Types(GoTypes_BASE):
                                   ("flags","__int32"),
                               ])
                              ]
+        
+        creator.createTypes(self.standardTypes)
+        creator.createTypes(self.commonTypes)
+
+class Go117Types(GoTypes_BASE):
+    def __init__(self, creator):
+        super(Go117Types, self).__init__(creator)
+        self.standardTypes = [
+            ("type", [
+                ("size",        "uintptr"),
+                ("ptrdata",     "uintptr"),
+                ("hash",        "__int32"),
+                ("flag",        "__int8"),
+                ("align",       "__int8"),
+                ("fieldAlign",  "__int8"),
+                ("kind",        "kind"),
+                ("equal",         "*void"),
+                ("gcdata",      "*unsigned char"),
+                ("string",      "baseptr"),
+                ("ptrtothis",   "baseptr"),
+           ])
+        ]
+
+        #this types depends on type structure so should be created after
+        self.commonTypes += [
+            ("uncommonType", [("pkgPath", "__int32"), ("mcount", "__int16"), ("unused1", "__int16"),("moff", "__int32"), ("unused2", "__int16")]),
+            ("method__", [("name", "__int32"), ("mtyp", "__int32"),("ifn","__int32"), ("tfn", "__int32")]),
+                            ("structField",[
+                                    ("Name",   "void *"),
+                                    ("typ", "*type"),
+                                    ("offset", "uintptr"),
+                              ]),
+                              ("structType", [
+                                    ("type","type"),
+                                    ("pkgPath", "void *"),
+                                    ("fields", "slice")
+                              ]),
+                              ("imethod", [
+                                  ("name", "baseptr"),
+                                  ("pkgPath", "baseptr"),
+                              ]),
+                              ("interfaceType",[
+                                  ("type", "type"),
+                                  ("pkgPath", "void *"),
+                                  ("methods", "slice")
+                              ]),
+                              ("funcType", [
+                                  ("type", "type"),
+                                  ("incount","__int16"),
+                                  ("outcount", "__int16")
+                              ]),
+                              ("mapType", [
+                                  ("type", "type"),
+                                  ("key","*type"),
+                                  ("elem","*type"),
+                                  ("bucket", "*type"),
+                                  ("hasher", "void *"),
+                                  ("keysize","__int8"),
+                                  ("elemsize","__int8"),
+                                  ("bucketsize","__int16"),
+                                  ("flags","__int32"),
+                              ])
+                             ]
 
         creator.createTypes(self.standardTypes)
         creator.createTypes(self.commonTypes)
+        self.creator = creator
+    
+    def update_robase(self, robase):
+        self.creator.configBase(robase)
 
 class Go17Types(GoTypes_BASE):
     def __init__(self, creator):
@@ -453,6 +520,8 @@ class TypeProcessing(object):
         for i in range(size):
             self.processStructField(addr, i*sz)
         name = self.getName(offset)
+        while name[0] == "*":
+            name = name[1:]
         name = Utils.relaxName(name)
         name = "ut_" + name
         self.createUserTypeStruct(addr, name, size, size_new_struct)
@@ -695,7 +764,7 @@ class TypeProcessing19(TypeProcessing17):
 class TypeProcessing116(TypeProcessing19):
         
     def __init__(self, pos, endpos, step, settings, base_type):
-        super(TypeProcessing19, self).__init__(pos, endpos, step, settings, base_type)
+        super(TypeProcessing116, self).__init__(pos, endpos, step, settings, base_type)
         self.robase = base_type
 
     def getStructFieldOffset(self, sid, addr):
@@ -710,3 +779,237 @@ class TypeProcessing116(TypeProcessing19):
         self.handle_offset(addr)
         addr = self.getPtr(sid, offset, "bucket")
         self.handle_offset(addr)
+
+class TypeProcessing117(TypeProcessing116):        
+    def __init__(self, pos, endpos, step, settings, base_type):
+        super(TypeProcessing117, self).__init__(pos, endpos, step, settings, base_type)
+        self.robase = base_type
+        self.basetypes = dict()
+        self.basetypes['BOOL'] = 'unsigned __int8'
+        self.basetypes['UINT8'] = 'unsigned __int8'
+        self.basetypes['INT8'] = 'signed __int8'
+        self.basetypes['UINT16'] = 'unsigned __int16'
+        self.basetypes['INT16'] = 'signed __int16'
+        self.basetypes['UINT32'] = 'unsigned __int32'
+        self.basetypes['INT32'] = 'signed __int32'
+        self.basetypes['UINT64'] = 'unsigned __int64'
+        self.basetypes['INT64'] = 'signed __int64'
+        self.basetypes['UINT'] = 'unsigned __int64'
+        self.basetypes['INT'] = 'signed __int64'
+        self.basetypes['UINTPTR'] = 'unsigned __int64 *'
+        self.basetypes['FLOAT32'] = 'float'
+        self.basetypes['FLOAT64'] = 'double'
+
+    def get_str_from_struct(self, ea):
+        str_sz = idc.get_wide_byte(ea+1)
+        str_ea = ea + 2
+
+        sz, ea = self.get_str_sz(ea)
+        return self.get_str(ea, sz)
+
+    @staticmethod
+    def get_str_sz(ea):
+        print('getting str for {:x}'.format(ea))
+        ea += 1
+        c = idc.get_wide_byte(ea)
+        ea += 1
+        numbits = 0
+        sz = c & 0x7f
+        numbits += 7
+        while c & 0x80:
+            c = idc.get_wide_byte(ea)
+            ea += 1
+            sz |= (c & 0x7f) << numbits
+            numbits += 7
+
+        return sz, ea
+        return self.get_str(ea, sz)
+
+
+    def makeMap(self, offset):
+        idc.SetType(offset, "mapType")
+        sid = ida_struct.get_struc_id("mapType")
+        addr = self.getPtr(sid, offset, "key")
+        self.handle_offset(addr)
+        addr = self.getPtr(sid, offset, "elem")
+        self.handle_offset(addr)
+        addr = self.getPtr(sid, offset, "bucket")
+        self.handle_offset(addr)
+
+    def processStructField(self, addr, index):
+        offset = addr + index
+        sid = ida_struct.get_struc_id("structField")
+        ptr = self.getPtr(sid, offset, "Name")
+        ln = idc.get_wide_byte(ptr + 1)
+        fieldName = self.get_str(ptr + 2, ln)
+        Utils.rename(ptr, fieldName)
+        ptr = self.getPtr(sid, offset, "typ")
+        self.handle_offset(ptr)        
+
+    def nameFromOffset(self, offset):
+        return self.get_str_from_struct(offset)
+
+    def getName(self, offset):
+        sid = ida_struct.get_struc_id("type")
+        name_off = self.getDword(sid, offset, "string")
+        string_addr = self.getOffset(name_off)
+        return self.get_str_from_struct(string_addr)
+
+    def processIMethod(self, offst):
+        sid = ida_struct.get_struc_id("imethod")
+        name = self.getDword(sid, offst, "name")
+        name += self.robase
+        return self.get_str_from_struct(name)
+        
+    def makeInterface(self, offset):
+        print('creating interface {:x}'.format(offset))
+        idc.SetType(offset, "interfaceType")
+        ifaceid = ida_struct.get_struc_id("interfaceType")
+        meth_offs = idc.get_member_offset(ifaceid, "methods")
+        slice_id = ida_struct.get_struc_id("slice")
+        size_off = idc.get_member_offset(slice_id, "len")
+        size = self.stepper.ptr(offset + meth_offs + size_off)
+
+        name = self.getName(offset)
+        while name[0] == "*":
+            name = name[1:]
+        name = Utils.relaxName(name)
+        itab_name = "itab_" + name
+        iface_name = 'iface_' + name
+
+        names = []
+        if size > 0:
+            addr = self.getPtr(slice_id, offset + meth_offs, "data")
+            idc.SetType(addr, "imethod")
+            sz = ida_struct.get_struc_size(ida_struct.get_struc_id("imethod"))
+            self.make_arr(addr, size, sz, "imethod")
+            names = self.processIMethods(addr, size)
+            if names is None:
+                return
+
+        # Reference - #https://github.com/teh-cmc/go-internals/blob/master/chapter2_interfaces/README.md#anatomy-of-an-interface
+        itab_fields = [("inter", "void *"), ("type", "void *"), ("hash", "__int32"), 
+                    ("unused", "__int32")] 
+        for i in names:
+            itab_fields.append((i, "void *"))
+
+        itype = [(itab_name, itab_fields)]
+        self.settings.structCreator.createTypes(itype)
+        iface_fields = [('tab', f'{itab_name} *'), ('data', 'void *')]
+        itype = [(iface_name, iface_fields)]
+        self.settings.structCreator.createTypes(itype)
+
+
+    def createUserTypeStruct(self, addr, name, size, self_size):
+        print('creating struct {}'.format(name))
+        fields = []
+        sid = ida_struct.get_struc_id("structField")
+        sz = ida_struct.get_struc_size(sid)
+        sid_type = ida_struct.get_struc_id("type")
+        fields = []
+        curr_offset = 0
+        idc.set_cmt(addr, name, 0)
+        for i in range(size):
+            print('field in {:x}'.format(addr+i*sz))
+            fieldname = self.nameFromOffset(self.getPtr(sid, addr+i*sz,"Name"))
+            type_addr = self.getPtr(sid, addr+i*sz, "typ")
+            typename = self.getType(type_addr)
+            size = self.getPtr(sid_type, type_addr, "size")
+            if fieldname == "" or fieldname is None:
+                fieldname = "unused_"+Utils.id_generator()
+            offset = self.getStructFieldOffset(sid, addr+i*sz)
+            print(f"Get offset: {offset:x}")
+            if offset != curr_offset:
+                print("Offset missmatch.Got %d expected %d. Adding padding..." % (curr_offset, offset))
+                if offset < curr_offset:
+                    raise("Too many bytes already")
+                while offset != curr_offset:
+                    fields.append(("padding", "char"))
+                    curr_offset += 1
+            curr_offset += size
+            print('fieldname = {}'.format(fieldname))
+            if size != 0:
+                fieldtype = None
+                offset_kind = idc.get_member_offset(sid_type, "kind")
+                kind_of_type = self.getKindEnumName(type_addr)
+                print(kind_of_type)
+                if kind_of_type == "STRUCT":
+                    name_type = self.getName(type_addr) 
+                    while name_type[0] == "*":
+                        name_type = name_type[1:]
+                    name_type = Utils.relaxName(name_type)
+                    name_type = "ut_" + name_type
+
+                    if ida_struct.get_struc_id(name_type) != idc.BADADDR:
+                        print("setting type %s" % name_type)
+                        fieldtype = name_type
+
+                elif kind_of_type == "STRING":
+                    fieldtype = "string"
+
+                elif kind_of_type == "SLICE":
+                    fieldtype = "slice"
+
+                elif kind_of_type == "INTERFACE":
+                    name_type = self.getName(type_addr)
+                    while name_type[0] == "*":
+                        name_type = name_type[1:]
+                    name_type = Utils.relaxName(name_type)
+                    name_type = "iface_" + name_type
+
+                    if ida_struct.get_struc_id(name_type) != idc.BADADDR:
+                        fieldtype = name_type
+
+                elif kind_of_type == "CHAN":
+                    name_type = 'ut_runtime_hchan'
+                    ptr_name_type = f'{name_type} *'
+
+                    if ida_struct.get_struc_id(name_type) != idc.BADADDR:
+                        fieldtype = ptr_name_type
+
+                elif kind_of_type == "MAP":
+                    name_type = 'ut_runtime_hmap'
+                    ptr_name_type = f'{name_type} *'
+                    if ida_struct.get_struc_id(name_type) != idc.BADADDR:
+                        fieldtype = ptr_name_type
+
+                elif kind_of_type == "FUNC":
+                    fieldtype = 'void *'
+
+                elif kind_of_type == "PTR":
+                    name_type = self.getName(type_addr)
+                    while name_type[0] == "*":
+                        name_type = name_type[1:]
+                    name_type = Utils.relaxName(name_type)
+                    name_type = "ut_" + name_type
+                    ptr_name_type = f'{name_type} *'
+
+                    if ida_struct.get_struc_id(name_type) != idc.BADADDR:
+                        print("setting ptr type %s" % name_type)
+                        fieldtype = ptr_name_type
+
+                elif kind_of_type in self.basetypes:
+                    fieldtype = self.basetypes[kind_of_type]
+
+                if fieldtype is None:
+                    if size == 1:
+                        fieldtype = 'char'
+                    else:
+                        fieldtype = "char [%d]" % size
+
+                fields.append((fieldname, fieldtype))
+                
+        if curr_offset != self_size:
+            print("%x: Structure size mismatch: %x" % (addr, curr_offset))
+            if self_size < curr_offset:
+                    raise("Too many bytes already")
+            while self_size != curr_offset:
+                fields.append(("padding", "char"))
+                curr_offset += 1    
+        new_type = [(name, fields)]
+        self.settings.structCreator.createTypes(new_type)
+        new_type_sid = ida_struct.get_struc_id(name)
+        sz = ida_struct.get_struc_size(new_type_sid)
+        if sz != self_size:
+            print("%x" % addr   )
+            raise Exception("Error at creating structure {}. {:x}!={:x}, fields={}".format(name, sz, self_size, fields))
