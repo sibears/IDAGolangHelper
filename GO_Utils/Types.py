@@ -728,7 +728,7 @@ class TypeProcessing17(TypeProcessing):
         func_addr1 = self.text_addr + func_body1
         func_body2 = self.getDword(sid, offst, "tfn")
         func_addr2 = self.text_addr + func_body1
-        return "%s %x %x %x" % (name, type_meth_addr1, func_addr1, func_addr2)
+        return f"{name} {type_meth_addr1} {func_addr1} {func_addr2}"
 
     def makeMap(self, offset):
         idc.SetType(offset, "mapType")
